@@ -62,4 +62,5 @@ def get_configuration(config_path = 'config.ini', is_test = True):
         TELEGRAM_CHAT_ID = config.get('telegram', 'CHAT_ID'),
         TELEGRAM_TOKEN = config.get('telegram', 'TOKEN'),
         ACTIVITY_VISITED_ACTIVITIES_PATH = config.get('activity', 'VISITED_ACTIVITIES_PATH'),
+        IS_TEST = is_test
     )

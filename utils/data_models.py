@@ -20,3 +20,4 @@ class Config:
     TELEGRAM_CHAT_ID: str
     TELEGRAM_TOKEN: str
     ACTIVITY_VISITED_ACTIVITIES_PATH: str
+    IS_TEST: bool

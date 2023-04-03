@@ -1,14 +1,3 @@
-# TODO: add subscription date!
-
-# TODO: AWS credentiasl
-# TODO: AWS env vars with all the webs, emails. etc
-
-# Remember to share the calendar with: 	google-calendar-bot@personal-mrn.iam.gserviceaccount.com
-
-import requests
-from bs4 import BeautifulSoup
-# import base64
-
 import os
 import warnings
 import datetime as dt
@@ -35,13 +24,13 @@ def concat_activities(*dicts):
         result_dict.update(dct)
     return result_dict
 
-def read_visited_activity_ids(config, is_test = True):
+def read_visited_activity_ids(config):
     result_set = set()
     if 's3' in config.ACTIVITY_VISITED_ACTIVITIES_PATH:
         ... #TODO: Add support for S3!
 
     else:
-         if os.path.isfile(os.path.expanduser(config.ACTIVITY_VISITED_ACTIVITIES_PATH)) and not is_test:
+         if os.path.isfile(os.path.expanduser(config.ACTIVITY_VISITED_ACTIVITIES_PATH)) and not config.IS_TEST:
             print(f"{config.ACTIVITY_VISITED_ACTIVITIES_PATH} was found loading!")
             with open(os.path.expanduser(config.ACTIVITY_VISITED_ACTIVITIES_PATH), 'r') as file:
                 ids_str = file.read().strip()  # Read contents and remove leading/trailing whitespaces
@@ -53,33 +42,39 @@ def get_new_activities(activities, visited_activities):
     return {k: v for k, v in activities.items() if k in new_activities_id}
 
 
-def persist_results(success, VISITED_ACTIVITIES_PATH):
-    if 's3' in VISITED_ACTIVITIES_PATH:
+def persist_results(success, config):
+    if 's3' in config.ACTIVITY_VISITED_ACTIVITIES_PATH:
         ... #TODO: 
     else:
         to_persist = ",".join([a.unique_id for a in success]) + ","
-        with open(os.path.expanduser(VISITED_ACTIVITIES_PATH), "a+") as f:
+        parsed_path = config.ACTIVITY_VISITED_ACTIVITIES_PATH
+        if config.IS_TEST:
+            parsed_path = os.path.expanduser(config.ACTIVITY_VISITED_ACTIVITIES_PATH).split('/')
+            parsed_path[-1] = '/test_' + parsed_path[-1]
+            parsed_path = '/'.join(parsed_path)
+
+        with open(os.path.expanduser(parsed_path), "a+") as f:
             f.write(to_persist)  
     
         
-def generate_final_report(new_activities, success, failed, is_test = True):
+def generate_final_report(new_activities, success, failed,config):
     cur_exec = dt.datetime.now()
 
     final_report = f"""
     {cur_exec.day}.{cur_exec.month}.{cur_exec.year} {cur_exec.hour}:{cur_exec.minute} CET
-    === SUMMARY === {"test" if is_test else ""}
+    === SUMMARY === {"test" if config.IS_TEST else ""}
     
     - NEW:       {len(new_activities)} new activities found!
     - SUCCESFUL: {len(success)} calendar events created.
     - FAILED:    {len(failed)} calendar events that failed to be created.
     """
-    telegram.send_telegram_msg(final_report)
+    telegram.send_telegram_msg(final_report, config)
     
-    if is_test:
+    if config.IS_TEST:
         new_activities = random.sample(list(new_activities), 3)
 
     for a in new_activities:
-        to_send = f"""NEW ACTIVITY - {a.club} - {"test" if is_test else ""}
+        to_send = f"""NEW ACTIVITY - {a.club} - {"test" if config.IS_TEST else ""}
 
 {a.kind_long} - {a.name}
 
@@ -87,13 +82,13 @@ Dates {a.start_date} to {a.end_date}
 
 Activity Link: {a.link}
 """
-        telegram.send_telegram_msg(to_send)
+        telegram.send_telegram_msg(to_send, config)
         time.sleep(0.2)
         # TODO: send list of new activities...
     return final_report
     
 def main():
-    is_test = True
+    is_test = False
 
     config = get_configuration('config.ini', is_test)
 
@@ -102,7 +97,7 @@ def main():
 
     # Concatenate all activities and compute new ones
     all_activities = concat_activities(cam_activities)
-    visited_activities = read_visited_activity_ids(config, is_test)
+    visited_activities = read_visited_activity_ids(config)
     new_activities = get_new_activities(all_activities,visited_activities)
 
     # Create calendar events
@@ -111,7 +106,7 @@ def main():
     if success: 
         persist_results(success,config)
 
-    r= generate_final_report(new_activities.values(),success, failed, is_test)
+    r= generate_final_report(new_activities.values(),success, failed,config)
     print(r)
 
 if __name__ == "__main__":
