@@ -1,3 +1,4 @@
-def send_telegram_msg(msg,TOKEN = TOKEN, CHAT_ID = CHAT_ID):
-    url = f"https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id={CHAT_ID}&text={msg}"
+import requests
+def send_telegram_msg(msg,config):
+    url = f"https://api.telegram.org/bot{config.TELEGRAM_TOKEN}/sendMessage?chat_id={config.TELEGRAM_CHAT_ID}&text={msg}"
     print(requests.get(url).json())

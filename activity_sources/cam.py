@@ -40,6 +40,8 @@ def get_activities_from_cam():
             activity_link = activity_element.find('a', href=True)['href']
             unique_id = generate_id(start_date + activity_link)
 
+            if activity_kind in utils.activity_filter_out:
+                continue
             parsed_activity = Activity(
                 unique_id=unique_id,
                 name=activity_name,
@@ -49,8 +51,7 @@ def get_activities_from_cam():
                     end_date, '%d/%m/%Y').date() + dt.timedelta(days=1),
                 club='CAM',
                 kind_long=activity_kind,
-                kind_sort=utils.activity_kind_mapper[
-                    activity_kind] if activity_kind in utils.activity_kind_mapper else activity_kind,
+                kind_sort=utils.activity_kind_mapper[activity_kind] if activity_kind in utils.activity_kind_mapper else activity_kind,
                 link=activity_link,
                 calendar_url=None
             )

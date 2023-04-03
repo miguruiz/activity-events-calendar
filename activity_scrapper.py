@@ -35,7 +35,7 @@ def concat_activities(*dicts):
         result_dict.update(dct)
     return result_dict
 
-def read_visited_activity_ids(config, is_test = is_test):
+def read_visited_activity_ids(config, is_test = True):
     result_set = set()
     if 's3' in config.ACTIVITY_VISITED_ACTIVITIES_PATH:
         ... #TODO: Add support for S3!
@@ -95,14 +95,14 @@ Activity Link: {a.link}
 def main():
     is_test = True
 
-    config = get_configuration(is_test)
+    config = get_configuration('config.ini', is_test)
 
     # Get Sources
     cam_activities = cam.get_activities_from_cam()
 
     # Concatenate all activities and compute new ones
     all_activities = concat_activities(cam_activities)
-    visited_activities = read_visited_activity_ids(config)
+    visited_activities = read_visited_activity_ids(config, is_test)
     new_activities = get_new_activities(all_activities,visited_activities)
 
     # Create calendar events

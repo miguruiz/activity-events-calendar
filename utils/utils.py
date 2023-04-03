@@ -3,6 +3,8 @@ import hashlib
 
 from utils.data_models import Config
 
+activity_filter_out = ["Senderismo","Senderismo Urbano"]
+
 activity_kind_mapper = {
 "Acto Institucional":"Acto",
 "Alpinismo-Alta Montaña":"Alp",
@@ -57,7 +59,7 @@ def get_configuration(config_path = 'config.ini', is_test = True):
     return Config(
         GOOGLE_CALENDAR_ID = calendar_id,
         GOOGLE_SERVICE_ACCOUNT_FILE_PATH = config.get('google', 'SERVICE_ACCOUNT_FILE'),
-        TELEGRAM_CHAT_ID = config.get('google', 'CHAT_ID'),
-        TELEGRAM_TOKEN = config.get('google', 'TOKEN'),
-        ACTIVITY_VISITED_ACTIVITIES_PATH = config.get('google', 'VISITED_ACTIVITIES_PATH'),
+        TELEGRAM_CHAT_ID = config.get('telegram', 'CHAT_ID'),
+        TELEGRAM_TOKEN = config.get('telegram', 'TOKEN'),
+        ACTIVITY_VISITED_ACTIVITIES_PATH = config.get('activity', 'VISITED_ACTIVITIES_PATH'),
     )
