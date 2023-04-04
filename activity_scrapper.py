@@ -28,13 +28,14 @@ def concat_activities(*dicts):
 
 def read_visited_activity_ids(config):
     f = ''
-    if 's3' in config.ACTIVITY_VISITED_ACTIVITIES_PATH:
-        f = aws.read_from_s3(config.ACTIVITY_VISITED_ACTIVITIES_PATH)
-    else:
-         if os.path.isfile(os.path.expanduser(config.ACTIVITY_VISITED_ACTIVITIES_PATH)) and not config.IS_TEST:
-            print(f"{config.ACTIVITY_VISITED_ACTIVITIES_PATH} was found loading!")
-            with open(os.path.expanduser(config.ACTIVITY_VISITED_ACTIVITIES_PATH), 'r') as file:
-                f = file.read()  # Read contents and remove leading/trailing whitespaces
+    if not config.IS_TEST:
+        if 's3' in config.ACTIVITY_VISITED_ACTIVITIES_PATH:
+            f = aws.read_from_s3(config.ACTIVITY_VISITED_ACTIVITIES_PATH)
+        else:
+             if os.path.isfile(os.path.expanduser(config.ACTIVITY_VISITED_ACTIVITIES_PATH)):
+                print(f"{config.ACTIVITY_VISITED_ACTIVITIES_PATH} was found loading!")
+                with open(os.path.expanduser(config.ACTIVITY_VISITED_ACTIVITIES_PATH), 'r') as file:
+                    f = file.read()  # Read contents and remove leading/trailing whitespaces
     return set(f.strip().split(','))
 
 def get_new_activities(activities, visited_activities):
@@ -47,9 +48,9 @@ def persist_results(success, config):
     if not config.IS_TEST:
         if 's3' in config.ACTIVITY_VISITED_ACTIVITIES_PATH:
             aws.write_to_s3(config.ACTIVITY_VISITED_ACTIVITIES_PATH, to_persist)
-    else:
-        with open(os.path.expanduser(config.ACTIVITY_VISITED_ACTIVITIES_PATH), "a+") as f:
-            f.write(to_persist)
+        else:
+            with open(os.path.expanduser(config.ACTIVITY_VISITED_ACTIVITIES_PATH), "a+") as f:
+                f.write(to_persist)
         
 def generate_final_report(new_activities, success, failed,config):
     cur_exec = dt.datetime.now()
@@ -81,7 +82,7 @@ Activity Link: {a.link}
     return final_report
     
 def main():
-    is_test = True
+    is_test = False
 
     config = get_configuration('/tmp/config.ini', is_test)
 

@@ -49,8 +49,5 @@ def create_calendar_events(new_activities, config):
             activity.calendar_url = result[1]
             failed.append(activity)
         time.sleep(0.2)
-        # TODO: Remove!
-        # PER iteration, check the status to see if the event and notifications was created, and if so add the activities to the list of visited
-        # in the end, clean activities in the past and overwrite the s3 file.
 
     return success, failed
