@@ -1,22 +1,26 @@
 # activity-events-calendar
+Small application to aggregate activities from different websites into google calendar, and sends Telegram notifications
+everytime there is a new activity. 
+
+The application is written in Python, and uses AWS Lambda as the orchestrator. Everytime it is executed, the application 
+web-scrapes the websites (data-sources) to extract the activities which are loaded in an array of type Activity.
+
+This way, all the data-sources are parsed to the same schema. The application then checks if the activities are new, 
+and if they are, it adds them to the calendar, and sends a Telegram notification.
+
+State of activities is stored in a .txt file in s3. The state is used to avoid adding the same activity twice to the calendar.
+
+In order to run the application, you need to provide the following:
+- Telegram bot & token
+- Google calendar id & google service account credentials (with permissions to write in te calendar)
+
 ![img.png](docs/images/high-level-architecture.png)
 
-TODO: add subscription date to CAM!
-TODO: add other sources
-TODO: is_test should come as a param as a param
-TODO: create dry_run param
 
-TODO: CICD -> create the zip, upload it to s3
-
-
-
-How it works?
-Extracts activities, checks against visited, if new, adds a calendar event.
-
-- Create service account in google
-- Create a calendar and share it with the service account google-calendar-bot@personal-mrn.iam.gserviceaccount.com
-
-- Telegram bot + token
-- Aws for credentials, activities.txt & credentials for google
-
-- test ignores visited_activities, and adds events to a test calendar.
+### Pending work:
+- provide is_test as an argument
+- create CICD in github actions to create the zip file used by the lambda, and upload to s3
+- Other data sources (madrono, pegaso, conbici, etc)
+- Create a dry_run option
+- Add tests
+- Add subscription date to CAM
