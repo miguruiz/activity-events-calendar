@@ -3,7 +3,6 @@ import re
 
 def read_from_s3(s3_path):
 
-    s3_path.split('')
     s3 = boto3.client('s3')
 
     file_name = re.search(r'[^/]+$', s3_path).group(0)
