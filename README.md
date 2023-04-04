@@ -1,5 +1,5 @@
 # activity-events-calendar
-
+![img.png](docs/images/high-level-architecture.png)
 
 TODO: add subscription date to CAM!
 TODO: add other sources
