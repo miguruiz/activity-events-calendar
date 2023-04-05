@@ -3,7 +3,18 @@ from googleapiclient.discovery import build
 import time
 
 def create_calendar_event(activity, service, config):
-    # doc: https://developers.google.com/calendar/api/v3/reference/events#resource
+    """
+    Create a calendar event using the Google Calendar API.
+
+    Args:
+        activity (Activity): The activity object containing the details of the event.
+        service (googleapiclient.discovery.Resource): The Calendar API service object.
+        config (Config): The configuration object containing the necessary credentials and settings.
+
+    Returns:
+        tuple: A tuple containing a boolean value indicating whether the event creation was successful or not,
+        and the URL of the created event if successful, or an error message if unsuccessful.
+    """
 
     event = {
         'summary': f'{activity.unique_id[:2]}]{activity.kind_sort}-{activity.name} - {activity.club}',
@@ -17,7 +28,9 @@ def create_calendar_event(activity, service, config):
             'timeZone': 'Europe/Madrid',
         },
         'transparency': 'transparent',
-        'visibility': 'default'}
+        'visibility': 'default'
+    }
+
     try:
         print(f"Creating: /n {event}")
         event = service.events().insert(calendarId=config.GOOGLE_CALENDAR_ID, body=event).execute()
@@ -32,6 +45,18 @@ def create_calendar_event(activity, service, config):
 
 
 def create_calendar_events(new_activities, config):
+    """
+    Create calendar events for a list of activities using the Google Calendar API.
+
+    Args:
+        new_activities (dict): A dictionary containing Activity objects as values.
+        config (Config): The configuration object containing the necessary credentials and settings.
+
+    Returns:
+        tuple: A tuple containing two lists - the list of activities for which events were successfully created,
+        and the list of activities for which event creation failed.
+    """
+
     # create credentials object from service account JSON key file
     creds = Credentials.from_service_account_file(config.GOOGLE_SERVICE_ACCOUNT_FILE_PATH,
                                                   scopes=['https://www.googleapis.com/auth/calendar'])
