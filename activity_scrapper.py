@@ -43,8 +43,9 @@ def get_new_activities(activities, visited_activities):
     return {k: v for k, v in activities.items() if k in new_activities_id}
 
 
-def persist_results(success, config):
-    to_persist = ",".join([a.unique_id for a in success]) + ","
+def persist_results(success, visited, config):
+    all = set(success).union(visited)
+    to_persist = ",".join([a.unique_id for a in all]) + ","
     if not config.IS_TEST:
         if 's3' in config.ACTIVITY_VISITED_ACTIVITIES_PATH:
             aws.write_to_s3(config.ACTIVITY_VISITED_ACTIVITIES_PATH, to_persist)
@@ -52,7 +53,7 @@ def persist_results(success, config):
             with open(os.path.expanduser(config.ACTIVITY_VISITED_ACTIVITIES_PATH), "a+") as f:
                 f.write(to_persist)
         
-def generate_final_report(new_activities, success, failed,config):
+def generate_final_report(new_activities, success, failed,visited_activities, config):
     cur_exec = dt.datetime.now()
 
     final_report = f"""
@@ -60,7 +61,7 @@ def generate_final_report(new_activities, success, failed,config):
     === SUMMARY === {"test" if config.IS_TEST else ""}
     
     - NEW:       {len(new_activities)} new activities found!
-    - SUCCESFUL: {len(success)} calendar events created.
+    - SUCCESSFUL: {len(success)} calendar events created.
     - FAILED:    {len(failed)} calendar events that failed to be created.
     """
     telegram.send_telegram_msg(final_report, config)
@@ -98,9 +99,9 @@ def main():
     success, failed = google.create_calendar_events(new_activities, config)
 
     if success: 
-        persist_results(success,config)
+        persist_results(success,visited_activities, config)
 
-    r= generate_final_report(new_activities.values(),success, failed,config)
+    r= generate_final_report(new_activities.values(),success, failed, config)
     print(r)
 
 if __name__ == "__main__":
