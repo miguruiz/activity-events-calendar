@@ -44,8 +44,8 @@ def get_new_activities(activities, visited_activities):
 
 
 def persist_results(success, visited, config):
-    all = set(success).union(visited)
-    to_persist = ",".join([a.unique_id for a in all]) + ","
+    all = set(success).union([a.unique_id for a in visited])
+    to_persist = ",".join(all) + ","
     if not config.IS_TEST:
         if 's3' in config.ACTIVITY_VISITED_ACTIVITIES_PATH:
             aws.write_to_s3(config.ACTIVITY_VISITED_ACTIVITIES_PATH, to_persist)
@@ -53,7 +53,7 @@ def persist_results(success, visited, config):
             with open(os.path.expanduser(config.ACTIVITY_VISITED_ACTIVITIES_PATH), "a+") as f:
                 f.write(to_persist)
         
-def generate_final_report(new_activities, success, failed,visited_activities, config):
+def generate_final_report(new_activities, success, failed, config):
     cur_exec = dt.datetime.now()
 
     final_report = f"""
