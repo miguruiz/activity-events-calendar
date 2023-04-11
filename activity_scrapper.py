@@ -53,7 +53,7 @@ def persist_results(success, visited, config):
             with open(os.path.expanduser(config.ACTIVITY_VISITED_ACTIVITIES_PATH), "a+") as f:
                 f.write(to_persist)
         
-def generate_final_report(new_activities, success, failed,visited_activities, config):
+def generate_final_report(new_activities, success, failed, config):
     cur_exec = dt.datetime.now()
 
     final_report = f"""
